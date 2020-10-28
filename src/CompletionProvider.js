@@ -65,7 +65,10 @@ class CompletionProvider {
     // we got a response from TabNine, return it as CompletionItems
     const result = JSON.parse(response)
     if (result.results) {
-      const completionItems = result.results.map((item) => {
+      const completionItems = result.results.sort((a, b) => 
+        // sort completions by detail
+        (parseFloat(a.detail) || 0) - (parseFloat(b.detail) || 0)
+      ).map((item) => {
         const completionItem = new CompletionItem(
           item.new_prefix + item.new_suffix,
           CompletionItemKind.Color // no fitting kind to use
