@@ -5,11 +5,12 @@
   "description": "TabNine extension for Nova.",
   "version": "1.0",
   "categories": ["completions"],
-
+  "bugs": {
+    "url": "https://github.com/alexanderflink/nova-tabnine/issues",
+    "email": "hi@alexanderflink.com"
+  },
   "main": "main.js",
-
   "activationEvents": ["*"],
-
   "entitlements": {
     "process": true,
     "filesystem": "readonly"
