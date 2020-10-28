@@ -1,0 +1,21 @@
+{
+  "name": "nova-tabnine",
+  "version": "1.0.0",
+  "description": "TabNine extension for Nova.",
+  "main": "index.js",
+  "dependencies": {
+    "compare-versions": "^3.6.0",
+    "rollup": "^2.32.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^10.0.0"
+  },
+  "scripts": {
+    "dev": "rollup --config --watch",
+    "build": "rollup --config",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexander Flink",
+  "license": "ISC"
+}

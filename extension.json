@@ -1,0 +1,17 @@
+{
+  "identifier": "alexanderflink.tabnine",
+  "name": "TabNine",
+  "organization": "Alexander Flink",
+  "description": "TabNine extension for Nova.",
+  "version": "1.0",
+  "categories": ["completions"],
+
+  "main": "main.js",
+
+  "activationEvents": ["*"],
+
+  "entitlements": {
+    "process": true,
+    "filesystem": "readonly"
+  }
+}
