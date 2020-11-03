@@ -129,6 +129,11 @@ class CompletionProvider {
     const latestVersion = this.getVersion()
     const binaryName = 'x86_64-apple-darwin/TabNine'
     const binPath = path.join(binaryDir, latestVersion, binaryName)
+    // make sure binary is executable
+    const chmod = new Process('usr/bin/env', {
+      args: ['chmod', '+x', binPath],
+    })
+    chmod.start()
     return binPath
   }
 
