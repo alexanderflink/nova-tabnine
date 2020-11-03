@@ -1,0 +1,10 @@
+{
+  "name": "nova-tabnine",
+  "version": "1.0.0",
+  "description": "TabNine extension for Nova.",
+  "main": "index.js",
+  "dependencies": {},
+  "scripts": {},
+  "author": "Alexander Flink",
+  "license": "ISC"
+}

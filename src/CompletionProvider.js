@@ -103,8 +103,7 @@ class CompletionProvider {
     }
   }
 
-  onStderr(error) {
-  }
+  onStderr(error) {}
   onDidExit() {
     // process exited, try to restart
     this.restartProcess()

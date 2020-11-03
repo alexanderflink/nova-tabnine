@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs'
 export default {
   input: 'src/index.js',
   output: {
-    file: 'Scripts/main.js',
+    file: 'tabnine.novaextension/Scripts/main.js',
     format: 'cjs',
   },
   plugins: [commonjs(), nodeResolve()],

@@ -4,10 +4,10 @@
   "description": "TabNine extension for Nova.",
   "main": "index.js",
   "dependencies": {
-    "compare-versions": "^3.6.0",
-    "rollup": "^2.32.1"
+    "compare-versions": "^3.6.0"
   },
   "devDependencies": {
+    "rollup": "^2.32.1",
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-node-resolve": "^10.0.0"
   },
