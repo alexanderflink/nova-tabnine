@@ -3,7 +3,7 @@
   "name": "TabNine",
   "organization": "Alexander Flink",
   "description": "TabNine extension for Nova.",
-  "version": "1.0",
+  "version": "1.0.1",
   "categories": ["completions"],
   "bugs": "https://github.com/alexanderflink/nova-tabnine/issues",
   "main": "main.js",
