@@ -6,5 +6,9 @@
   "dependencies": {},
   "scripts": {},
   "author": "Alexander Flink",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexanderflink/nova-tabnine.git"
+  },
   "license": "ISC"
 }

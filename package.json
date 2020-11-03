@@ -16,6 +16,10 @@
     "build": "rollup --config",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexanderflink/nova-tabnine.git"
+  },
   "author": "Alexander Flink",
   "license": "ISC"
 }
