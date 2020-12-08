@@ -6,27 +6,12 @@ let process
 const MAX_RESTARTS = 10
 
 class CompletionProvider {
-  constructor() {
-    // create and start TabNine process
-    this.startProcess()
+  constructor(tabnineService) {
+    this.tabnineService = tabnineService
+    tabnineService.onResponse = this.onResponse.bind(this)
     this.resolve = null
     this.reject = null
     this.currentCompletionContext = null
-    this.numRestarts = 0
-  }
-
-  startProcess() {
-    const binaryPath = this.getBinaryPath()
-    this.process = new Process(binaryPath, {
-      stdio: 'pipe',
-    })
-    this.reader = this.process.onStdout(this.onStdout, this)
-    this.version = this.getVersion()
-    this.writer = this.process.stdin.getWriter()
-    // call these to resolve or reject the currently active completion
-    this.didExit = this.process.onDidExit(this.onDidExit, this)
-    this.stdErr = this.process.onStderr(this.onStdErr, this)
-    this.process.start()
   }
 
   provideCompletionItems(editor, context) {
@@ -48,28 +33,21 @@ class CompletionProvider {
     )
 
     // construct request
-    const request = JSON.stringify({
-      version: this.version,
-      request: {
-        Autocomplete: {
-          before,
-          after,
-          region_includes_beginning: true,
-          region_includes_end: true,
-          filename: document.path,
-        },
+    const request = {
+      Autocomplete: {
+        before,
+        after,
+        region_includes_beginning: true,
+        region_includes_end: true,
+        filename: document.path,
       },
-    })
+    }
 
-    // write to TabNine when ready
-    this.writer.ready.then(() => {
-      this.writer.write(request)
-      this.writer.write('\n')
-    })
+    this.tabnineService.write(request)
     return promise
   }
 
-  onStdout(response) {
+  onResponse(response) {
     // we got a response from TabNine, return it as CompletionItems
     const result = JSON.parse(response)
     if (result.results) {
@@ -101,55 +79,6 @@ class CompletionProvider {
     } else {
       this.reject(new Error('No TabNine response'))
     }
-  }
-
-  onStderr(error) {}
-  onDidExit() {
-    // process exited, try to restart
-    this.restartProcess()
-  }
-
-  restartProcess() {
-    if (this.numRestarts < MAX_RESTARTS) {
-      this.startProcess()
-      this.numRestarts++
-      return true
-    } else {
-      console.log('Restarted TabNine too many times')
-      return false
-    }
-  }
-
-  getBinaryDir() {
-    return path.normalize(path.join(__dirname, '..', 'binaries'))
-  }
-
-  getBinaryPath() {
-    const binaryDir = this.getBinaryDir()
-    const latestVersion = this.getVersion()
-    const binaryName = 'x86_64-apple-darwin/TabNine'
-    const binPath = path.join(binaryDir, latestVersion, binaryName)
-    // make sure binary is executable
-    const chmod = new Process('usr/bin/env', {
-      args: ['chmod', '+x', binPath],
-    })
-    chmod.start()
-    return binPath
-  }
-
-  getVersion() {
-    const binaryDir = this.getBinaryDir()
-    const versions = fs.listdir(binaryDir)
-    const sortedVersions = versions.sort(compareVersions)
-    const latestVersion = sortedVersions[sortedVersions.length - 1]
-    return latestVersion
-  }
-
-  destroy() {
-    this.reader.dispose()
-    this.didExit.dispose()
-    this.stdErr.dispose()
-    this.process.terminate()
   }
 }
 

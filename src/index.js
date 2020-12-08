@@ -1,25 +1,37 @@
 import CompletionProvider from './CompletionProvider'
+import TabNineService from './TabNineService'
 
 let completionAssistant = null
 let provider = null
+let tabnineService = null
 
 exports.activate = function () {
-  console.log('activate')
+  console.log('Activate TabNine extension')
   // activate extension
-  // register a completion provider
-  provider = new CompletionProvider()
-  completionAssistant = nova.assistants.registerCompletionAssistant(
-    '*',
-    provider
-  )
+  // TabNine service downloads TabNine if needed and starts a TabNine process
+  tabnineService = new TabNineService()
+  tabnineService
+    .ready()
+    .then(() => {
+      console.log('TabNine ready')
+      // register a completion provider
+      provider = new CompletionProvider(tabnineService)
+      completionAssistant = nova.assistants.registerCompletionAssistant(
+        '*',
+        provider
+      )
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 }
 
 exports.deactivate = function () {
-  console.log('deactivate')
+  console.log('Deactivate TabNine extension')
   // deactivate extension
-  if (provider) {
-    provider.destroy()
-    provider = null
+  if (tabnineService) {
+    tabnineService.destroy()
+    tabnineService = null
   }
   if (completionAssistant) {
     completionAssistant.dispose()
