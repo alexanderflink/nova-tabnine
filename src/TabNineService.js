@@ -2,6 +2,8 @@ import compareVersions from 'compare-versions'
 const path = nova.path
 const fs = nova.fs
 
+const MAX_RESTARTS = 10
+
 class TabNineService {
   constructor() {
     // promise to check if ready

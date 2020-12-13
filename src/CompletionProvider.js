@@ -1,10 +1,3 @@
-import compareVersions from 'compare-versions'
-const path = nova.path
-const fs = nova.fs
-let process
-
-const MAX_RESTARTS = 10
-
 class CompletionProvider {
   constructor(tabnineService) {
     this.tabnineService = tabnineService
