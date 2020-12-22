@@ -13,3 +13,7 @@ Remove binaries from repo, download when starting extension instead.
 ## Version 1.2.6
 
 Fix MAX_RESTARTS error
+
+## Version 1.2.7
+
+Fixes end-of-range error
