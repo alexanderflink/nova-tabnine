@@ -22,8 +22,8 @@ class CompletionProvider {
     const before = document.getTextInRange(new Range(0, cursorPosition))
     // text after cursor
     const after = document.getTextInRange(
-      new Range(cursorPosition, document.length - 1)
-    )
+      new Range(cursorPosition, Math.max(cursorPosition, document.length - 1))
+    );
 
     // construct request
     const request = {
