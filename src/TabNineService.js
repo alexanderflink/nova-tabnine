@@ -20,22 +20,11 @@ class TabNineService {
       this.readyResolve()
     } else {
       // couldn't find executable. Proceed to download
-      // run dl_binaries.sh to download TabNine
       console.log('Found no TabNine executable')
-      console.log('Downloading TabNine...')
-      const dl_binaries = path.join(__dirname, '..', './dl_binaries.sh')
-      // make sure dl_binaries is executable
-      const chmod = new Process('usr/bin/env', {
-        args: ['chmod', '+x', dl_binaries],
-      })
-      chmod.start()
-      const downloadProcess = new Process(dl_binaries, {
-        stdio: 'pipe',
-        shell: true,
-      })
-      downloadProcess.start()
-      downloadProcess.onDidExit(this.onDownloadExit, this)
-      downloadProcess.onStderr(this.onDownloadError, this)
+      const installScriptPath = path.join(__dirname, '..', 'dl_binaries.sh')
+      if (this.prepareInstallScript(installScriptPath)) {
+        this.install(installScriptPath)
+      }
     }
   }
 
@@ -102,7 +91,9 @@ class TabNineService {
   }
 
   getBinaryDir() {
-    return path.normalize(path.join(__dirname, '..', 'binaries'))
+    return path.normalize(
+      path.join(nova.extension.globalStoragePath, 'binaries')
+    )
   }
 
   getBinaryPath() {
@@ -128,6 +119,39 @@ class TabNineService {
     const sortedVersions = versions.sort(compareVersions)
     const latestVersion = sortedVersions[sortedVersions.length - 1]
     return latestVersion
+  }
+
+  prepareInstallScript(installScriptPath) {
+    // make sure dl_binaries is executable
+    if (fs.access(installScriptPath, fs.X_OK)) {
+      return true
+    } else {
+      try {
+        this.makeExecutable(installScriptPath)
+        return true
+      } catch (error) {
+        return error
+      }
+    }
+  }
+
+  install(installPath) {
+    const downloadProcess = new Process(installPath, {
+      stdio: 'pipe',
+      shell: true,
+      cwd: nova.extension.globalStoragePath,
+    })
+    downloadProcess.start()
+    console.log('Downloading TabNine...')
+    downloadProcess.onDidExit(this.onDownloadExit, this)
+    downloadProcess.onStderr(this.onDownloadError, this)
+  }
+
+  makeExecutable(filePath) {
+    const chmod = new Process('usr/bin/env', {
+      args: ['chmod', '+x', filePath],
+    })
+    chmod.start()
   }
 
   destroy() {

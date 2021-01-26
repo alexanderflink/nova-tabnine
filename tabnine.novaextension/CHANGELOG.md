@@ -17,3 +17,7 @@ Fix MAX_RESTARTS error
 ## Version 1.2.7
 
 Fixes end-of-range error
+
+## Version 1.3.0
+
+Moves TabNine installation to global extension directory, this should fix crashes related to TabNine updating.
