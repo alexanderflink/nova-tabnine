@@ -21,3 +21,7 @@ Fixes end-of-range error
 ## Version 1.3.0
 
 Moves TabNine installation to global extension directory, this should fix crashes related to TabNine updating.
+
+## Version 1.3.1
+
+Fix crash related to TabNine installing / updating

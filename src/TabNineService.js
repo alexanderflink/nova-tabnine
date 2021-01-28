@@ -2,10 +2,11 @@ import compareVersions from 'compare-versions'
 const path = nova.path
 const fs = nova.fs
 
-const MAX_RESTARTS = 10
+const MAX_RESTARTS = 100
 
 class TabNineService {
   constructor() {
+    this.numRestarts = 0;
     // promise to check if ready
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve
@@ -35,15 +36,18 @@ class TabNineService {
   startProcess() {
     const binaryPath = this.getBinaryPath()
     this.version = this.getVersion()
-    this.process = new Process(binaryPath, {
-      stdio: 'pipe',
-    })
-    this.reader = this.process.onStdout(this.onStdout, this)
-    this.writer = this.process.stdin.getWriter()
-    // call these to resolve or reject the currently active completion
-    this.didExit = this.process.onDidExit(this.onDidExit, this)
-    this.stdErr = this.process.onStderr(this.onStdErr, this)
-    this.process.start()
+    if (binaryPath) {
+      this.process = new Process(binaryPath, {
+        stdio: 'pipe',
+      })
+      this.reader = this.process.onStdout(this.onStdout, this)
+      this.writer = this.process.stdin.getWriter()
+      this.didExit = this.process.onDidExit(this.onDidExit, this)
+      this.stdErr = this.process.onStderr(this.onStdErr, this)
+      this.process.start()      
+    } else { 
+      console.log('Could not start TabNine process')
+    }
   }
 
   // write a request to TabNine
@@ -62,7 +66,8 @@ class TabNineService {
   onResponse() {}
 
   onStderr(error) {}
-  onDidExit() {
+  onDidExit(e) {
+    console.log('TabNine exited, trying to restart...', e) 
     // process exited, try to restart
     this.restartProcess()
   }
@@ -78,15 +83,15 @@ class TabNineService {
     }
   }
 
-  onDownloadExit() {
+  onDownloadExit(e) {
     const version = this.getVersion()
-    console.log('Successfully downloaded TabNine', version)
+    console.log('Successfully downloaded TabNine', version)  
     this.startProcess()
     this.readyResolve()
   }
 
-  onDownloadError() {
-    console.log('Error while download TabNine! Please restart extension.')
+  onDownloadError(e) {  
+    console.log('Error while download TabNine! Please restart extension.', e)
     this.readyReject()
   }
 
@@ -115,9 +120,18 @@ class TabNineService {
 
   getVersion() {
     const binaryDir = this.getBinaryDir()
-    const versions = fs.listdir(binaryDir)
-    const sortedVersions = versions.sort(compareVersions)
-    const latestVersion = sortedVersions[sortedVersions.length - 1]
+    let latestVersion = null
+    // if .active file exists, use it
+    const versionFilePath = path.join(binaryDir, '.active')
+    if (fs.access(versionFilePath, fs.R_OK)) {
+      const versionFile = fs.open(versionFilePath)
+      latestVersion = versionFile.read()
+    } else {
+      const versions = fs.listdir(binaryDir)
+      const sortedVersions = versions.sort(compareVersions)
+      latestVersion = sortedVersions[sortedVersions.length - 1]      
+    } 
+    
     return latestVersion
   }
 

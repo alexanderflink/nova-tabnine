@@ -15,6 +15,5 @@ do
     echo "downloading $path"
     curl -sS https://update.tabnine.com/bundles/$path/TabNine.zip > binaries/$path/TabNine.zip
     unzip -o binaries/$path/TabNine.zip -d binaries/$path
-    rm binaries/$path/TabNine.zip
     chmod +x binaries/$path/*
 done
