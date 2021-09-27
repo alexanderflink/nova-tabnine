@@ -25,3 +25,7 @@ Moves TabNine installation to global extension directory, this should fix crashe
 ## Version 1.3.1
 
 Fix crash related to TabNine installing / updating
+
+## Version 1.3.2
+
+Change client name
