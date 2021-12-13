@@ -29,3 +29,7 @@ Fix crash related to TabNine installing / updating
 ## Version 1.3.2
 
 Change client name
+
+## Version 1.4.0
+
+Add support for M1 macs

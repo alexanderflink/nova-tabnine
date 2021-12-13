@@ -4,7 +4,8 @@ set -e
 # This script downloads the binaries for the most recent version of TabNine.
 
 version="$(curl -sS https://update.tabnine.com/bundles/version)"
-targets='x86_64-apple-darwin'
+targets='x86_64-apple-darwin
+    aarch64-apple-darwin'
 
 rm -rf ./binaries
 
@@ -15,5 +16,6 @@ do
     echo "downloading $path"
     curl -sS https://update.tabnine.com/bundles/$path/TabNine.zip > binaries/$path/TabNine.zip
     unzip -o binaries/$path/TabNine.zip -d binaries/$path
+    rm binaries/$path/TabNine.zip
     chmod +x binaries/$path/*
 done

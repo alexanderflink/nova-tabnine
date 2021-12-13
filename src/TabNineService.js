@@ -4,16 +4,25 @@ const fs = nova.fs
 
 const MAX_RESTARTS = 100
 
+const ARCH_PATHS = {
+  x86_64: 'x86_64-apple-darwin',
+  arm64: 'aarch64-apple-darwin',
+}
+
 class TabNineService {
   constructor() {
-    this.numRestarts = 0;
+    this.numRestarts = 0
     // promise to check if ready
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve
       this.readyReject = reject
     })
 
-    const binaryPath = this.getBinaryPath()
+    this.init()
+  }
+
+  async init() {
+    const binaryPath = await this.getBinaryPath()
     if (binaryPath) {
       // check if TabNine is downloaded
       console.log('Found TabNine at', binaryPath)
@@ -33,21 +42,21 @@ class TabNineService {
     return this.readyPromise
   }
 
-  startProcess() {
-    const binaryPath = this.getBinaryPath()
+  async startProcess() {
+    const binaryPath = await this.getBinaryPath()
     this.version = this.getVersion()
     if (binaryPath) {
       this.process = new Process(binaryPath, {
         stdio: 'pipe',
-        args: ["--client=nova"],
+        args: ['--client=nova'],
       })
       this.reader = this.process.onStdout(this.onStdout, this)
       this.writer = this.process.stdin.getWriter()
       this.didExit = this.process.onDidExit(this.onDidExit, this)
       this.stdErr = this.process.onStderr(this.onStdErr, this)
-      this.process.start()      
-    } else { 
-      console.log('Could not start TabNine process')
+      this.process.start()
+    } else {
+      console.error('Error: Could not find binary path')
     }
   }
 
@@ -68,7 +77,7 @@ class TabNineService {
 
   onStderr(error) {}
   onDidExit(e) {
-    console.log('TabNine exited, trying to restart...', e) 
+    console.log('TabNine exited, trying to restart...', e)
     // process exited, try to restart
     this.restartProcess()
   }
@@ -86,27 +95,27 @@ class TabNineService {
 
   onDownloadExit(e) {
     const version = this.getVersion()
-    console.log('Successfully downloaded TabNine', version)  
+    console.log('Successfully downloaded TabNine', version)
     this.startProcess()
     this.readyResolve()
   }
 
-  onDownloadError(e) {  
+  onDownloadError(e) {
     console.log('Error while download TabNine! Please restart extension.', e)
     this.readyReject()
   }
 
   getBinaryDir() {
-    return path.normalize(
-      path.join(nova.extension.globalStoragePath, 'binaries')
-    )
+    return path.normalize(path.join(nova.extension.globalStoragePath, 'binaries'))
   }
 
-  getBinaryPath() {
+  async getBinaryPath() {
     try {
       const binaryDir = this.getBinaryDir()
       const latestVersion = this.getVersion()
-      const binaryName = 'x86_64-apple-darwin/TabNine'
+      const archName = await this.getArchitecture()
+      const archPath = ARCH_PATHS[archName.trim()]
+      const binaryName = `${archPath}/TabNine`
       const binPath = path.join(binaryDir, latestVersion, binaryName)
       if (fs.access(binPath, fs.X_OK)) {
         return binPath
@@ -130,10 +139,21 @@ class TabNineService {
     } else {
       const versions = fs.listdir(binaryDir)
       const sortedVersions = versions.sort(compareVersions)
-      latestVersion = sortedVersions[sortedVersions.length - 1]      
-    } 
-    
+      latestVersion = sortedVersions[sortedVersions.length - 1]
+    }
+
     return latestVersion
+  }
+
+  getArchitecture() {
+    return new Promise((resolve, reject) => {
+      const uname = new Process('usr/bin/uname', {
+        args: ['-m'],
+      })
+      uname.start()
+      uname.onStdout(resolve)
+      uname.onStderr(reject)
+    })
   }
 
   prepareInstallScript(installScriptPath) {

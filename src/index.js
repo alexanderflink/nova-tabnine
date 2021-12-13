@@ -16,10 +16,7 @@ exports.activate = function () {
       console.log('TabNine ready')
       // register a completion provider
       provider = new CompletionProvider(tabnineService)
-      completionAssistant = nova.assistants.registerCompletionAssistant(
-        '*',
-        provider
-      )
+      completionAssistant = nova.assistants.registerCompletionAssistant('*', provider)
     })
     .catch((error) => {
       console.log(error)

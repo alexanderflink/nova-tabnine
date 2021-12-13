@@ -22,8 +22,8 @@ class CompletionProvider {
     const before = document.getTextInRange(new Range(0, cursorPosition))
     // text after cursor
     const after = document.getTextInRange(
-      new Range(cursorPosition, Math.max(cursorPosition, document.length - 1))
-    );
+      new Range(cursorPosition, Math.max(cursorPosition, document.length - 1)),
+    )
 
     // construct request
     const request = {
@@ -48,21 +48,18 @@ class CompletionProvider {
         .sort(
           (a, b) =>
             // sort completions by detail
-            (parseFloat(a.detail) || 0) - (parseFloat(b.detail) || 0)
+            (parseFloat(a.detail) || 0) - (parseFloat(b.detail) || 0),
         )
         .map((item) => {
           const completionItem = new CompletionItem(
             item.new_prefix + item.new_suffix,
-            CompletionItemKind.Color // no fitting kind to use
+            CompletionItemKind.Color, // no fitting kind to use
           )
           // insert completion before cursor
           completionItem.insertText = item.new_prefix
           // insert completion after cursor
           completionItem.additionalTextEdits = [
-            TextEdit.insert(
-              this.currentCompletionContext.position,
-              item.new_suffix
-            ),
+            TextEdit.insert(this.currentCompletionContext.position, item.new_suffix),
           ]
           completionItem.documentation = result.user_message.join(' ')
           completionItem.detail = 'TabNine ' + (item.detail || '')
