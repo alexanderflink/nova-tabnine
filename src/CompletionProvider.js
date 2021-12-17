@@ -8,6 +8,7 @@ class CompletionProvider {
   }
 
   provideCompletionItems(editor, context) {
+    console.log('provideCompletionItems')
     this.currentCompletionContext = context
     const promise = new Promise((res, rej) => {
       this.resolve = res
@@ -41,6 +42,7 @@ class CompletionProvider {
   }
 
   onResponse(response) {
+    console.log('onResponse', response)
     // we got a response from TabNine, return it as CompletionItems
     const result = JSON.parse(response)
     if (result.results) {
@@ -67,6 +69,7 @@ class CompletionProvider {
         })
       this.resolve(completionItems)
     } else {
+      console.log('no TabNine response')
       this.reject(new Error('No TabNine response'))
     }
   }

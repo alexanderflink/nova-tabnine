@@ -84,6 +84,7 @@ class TabNineService {
 
   restartProcess() {
     if (this.numRestarts < MAX_RESTARTS) {
+      console.log('restarting TabNine')
       this.startProcess()
       this.numRestarts++
       return true
@@ -101,7 +102,7 @@ class TabNineService {
   }
 
   onDownloadError(e) {
-    console.log('Error while download TabNine! Please restart extension.', e)
+    console.log('Error while downloading TabNine! Please restart extension.', e)
     this.readyReject()
   }
 
@@ -123,7 +124,7 @@ class TabNineService {
         return null
       }
     } catch (error) {
-      console.log(error)
+      console.log('Error:', error)
       return null
     }
   }
