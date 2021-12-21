@@ -3,14 +3,14 @@
   "name": "TabNine",
   "organization": "Alexander Flink",
   "description": "AI powered all language autocompletion.",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "categories": ["completions"],
   "bugs": "https://github.com/alexanderflink/nova-tabnine/issues",
   "repository": "https://github.com/alexanderflink/nova-tabnine.git",
-  "main": "main.js",
+  "main": "index.js",
   "activationEvents": ["*"],
   "entitlements": {
     "process": true,
-    "filesystem": "readonly"
+    "filesystem": "readwrite"
   }
 }

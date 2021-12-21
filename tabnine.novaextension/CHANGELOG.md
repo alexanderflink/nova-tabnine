@@ -1,3 +1,7 @@
+## Version 1.6.0
+
+Rewrite in typescript, remove shell script in favor of nova apis
+
 ## Version 1.5.0
 
 Add new triggerChars feature to trigger TabNine more often
