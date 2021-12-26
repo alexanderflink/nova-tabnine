@@ -1,6 +1,8 @@
 ## Version 1.6.0
 
-Rewrite in typescript, remove shell script in favor of nova apis
+- Rewrite in typescript
+- Remove shell script in favor of nova apis
+- Fix issue where TabNine would stop responding after a while
 
 ## Version 1.5.0
 

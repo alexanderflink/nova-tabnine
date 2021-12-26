@@ -2,7 +2,7 @@ import compareVersions from 'compare-versions'
 const path = nova.path
 const fs = nova.fs
 
-const MAX_RESTARTS = 10
+const MAX_RESTARTS = 1000
 const REQUEST_TIMEOUT = 1000
 
 const ARCH_PATHS: Record<string, string> = {
@@ -61,9 +61,9 @@ class TabNineService {
     this.version = this.getVersion()
 
     if (binaryPath) {
-      this.process = new Process(binaryPath, {
+      this.process = new Process('/usr/bin/env', {
         stdio: 'pipe',
-        args: ['--client=nova', '--no-lsp=true'],
+        args: [binaryPath, '--client=nova', '--no-lsp=true'],
       })
 
       this.reader = this.process.onStdout(this.onStdout.bind(this))
@@ -80,32 +80,28 @@ class TabNineService {
 
   request(content: AutoCompleteRequest): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (this.process?.stdin) {
-        const writableStream = this.process.stdin as WritableStream<string>
-        const writer = writableStream.getWriter()
+      const writableStream = this.process?.stdin as WritableStream<string> | null | undefined
+      if (writableStream && !writableStream.locked) {
+        // get writer
+        const writer: WritableStreamDefaultWriter = writableStream.getWriter()
 
-        const releaseTimeout = setTimeout(() => {
-          console.log('Writer timed out')
-          try {
-            writer.releaseLock()
-          } catch (err) {
-            console.log(err)
-          }
+        // set timeout timer if writer takes too long
+        const timeout = setTimeout(() => {
+          // abort stream and terminate process (will be restarted on exit)
+          writableStream.abort().then(reject).catch(reject)
+          this.process?.terminate()
         }, REQUEST_TIMEOUT)
-
-        this.onReadOnce(resolve)
 
         writer?.ready
           .then(() => {
             return writer?.write(JSON.stringify({ version: this.version, request: content }) + '\n')
           })
           .then(() => {
-            clearTimeout(releaseTimeout)
+            clearTimeout(timeout)
+            this.onReadOnce(resolve)
             writer.releaseLock()
           })
-          .catch(console.error)
-      } else {
-        reject('No process running')
+          .catch(reject)
       }
     })
   }
@@ -117,11 +113,11 @@ class TabNineService {
   onStdout(line: string) {
     const oldestCallback = this.callbackQueue.shift()
 
-    if (!oldestCallback) {
-      throw new Error('Read a response from the engine before a request was written.')
+    if (oldestCallback) {
+      oldestCallback(line)
+    } else {
+      console.error('Read a response from the engine before a request was written.')
     }
-
-    oldestCallback(line)
   }
 
   onStderr(line: string) {
@@ -235,6 +231,9 @@ class TabNineService {
 
     // unzip
     await this.unzipBinary(zipPath, installPath)
+
+    console.log('deleting zip')
+    nova.fs.remove(zipPath)
 
     // make executable
     await Promise.all(
