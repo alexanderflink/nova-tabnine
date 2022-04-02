@@ -46,19 +46,37 @@ class CompletionProvider {
             return 0
           })
           .map((item) => {
+            // get range from cursor to end of line
+            const selectedRange = editor.selectedRange
+            const lineRange = editor.document.getLineRangeForRange(selectedRange)
+            const rangeAfterCursor = new Range(selectedRange.end, lineRange.end - 1) // don't include newline
+            const textAfterCursor = editor.document.getTextInRange(rangeAfterCursor)
+
             // construct CompletionItem
             const completionItem = new CompletionItem(
               item.new_prefix + item.new_suffix,
-              CompletionItemKind.Color, // no fitting kind to use
+              CompletionItemKind.Statement, // no fitting kind to use
             )
             // insert completion before cursor
             completionItem.insertText = item.new_prefix
+
+            const additionalTextEdits = []
+
+            // check if text after cursor exists in completion
+            if (item.new_prefix.search(textAfterCursor) !== -1) {
+              additionalTextEdits.push(TextEdit.delete(rangeAfterCursor))
+            }
+
             // insert completion after cursor
-            completionItem.additionalTextEdits = [
-              TextEdit.insert(context.position, item.new_suffix),
-            ]
+            if (item.new_suffix) {
+              additionalTextEdits.push(TextEdit.insert(context.position, item.new_suffix))
+            }
+
+            completionItem.additionalTextEdits = additionalTextEdits
+
             completionItem.documentation = result.user_message.join(' ')
             completionItem.detail = 'TabNine ' + (item.detail || '')
+
             return completionItem
           })
         return completionItems

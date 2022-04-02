@@ -1,6 +1,6 @@
 {
   "name": "nova-tabnine",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "AI powered all language autocompletion.",
   "main": "index.js",
   "dependencies": {

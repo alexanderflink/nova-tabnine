@@ -1,3 +1,7 @@
+## Version 1.6.1
+
+- Fix issue where completion would not overwrite identical text after cursor
+
 ## Version 1.6.0
 
 - Rewrite in typescript
